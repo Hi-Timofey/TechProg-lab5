@@ -24,9 +24,15 @@ def create_post(request):
             }
         # в словаре form будет храниться информация, введенная пользователем
             if form["text"] and form["title"]:
-        # если поля заполнены без ошибок
-                article = Article.objects.create(text=form["text"], title=form["title"], author=request.user)
-                return redirect('get_article', article_id=article.id)
+        # если поля заполнены без ошибок проверяем уникальна ли статья
+                if_article_unique = Article.objects.filter(title=form["title"])
+                breakpoint()
+                if len(if_article_unique) == 0:
+                    article = Article.objects.create(text=form["text"], title=form["title"], author=request.user)
+                    return redirect('get_article', article_id=article.id)
+                else:
+                    form['errors'] = u"Такая статья уже существует"
+                    return render(request, 'form.html', {'form': form})
             # перейти на страницу поста
             else:
         # если введенные данные некорректны
